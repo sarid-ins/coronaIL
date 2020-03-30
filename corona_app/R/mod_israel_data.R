@@ -10,6 +10,23 @@
 mod_israel_data_ui <- function(id){
   ns <- NS(id)
   tagList(
+    fluidRow(
+      box(radioButtons(ns("data_source"), label = "Choose data source",
+                       choices = c("Shaviv (updates two times per day)" = "shaviv", 
+                                   "Dardikman-Hashkes (updates once a day)" = "dardikman_hashkes"),
+                       selected = "shaviv",
+                       inline = TRUE),
+          width = 12,
+          title = "Data source... to replace data source click on the (+) to the far right --->",
+          collapsible = T,
+          collapsed = T,
+          status = "info",
+          p("In both cases, data is extracted from MOH's telegram messages, but in different times. In long range both sources should be fairly consistent."),
+          p("Shaviv (Ilan Shaviv) is processing and tidying the data from MOH Telegram reports."),
+          HTML("<p>Dardikman-Hashkes: do the same and post them on 
+                                 <a href = 'https://github.com/idandrd/israel-covid19-data'>github</a> 
+                                 and <a href = 'https://covid19data.co.il/'>here</a>.</p>"))
+    ),
     fluidRow(valueBoxOutput(ns("last_updated"), width = 3),
              valueBoxOutput(ns("currently_confirmed"), width = 3),
              valueBoxOutput(ns("currently_seriously_ill"), width = 3),
@@ -19,23 +36,25 @@ mod_israel_data_ui <- function(id){
                  status = "primary",
                  selectInput(inputId = ns("plot_selector"),
                              label = "Show on plot",
-                             choices = c("dead", "serious", "medium", "light", "recovered", "total"),
+                             choices = c("dead", "severe", "moderate", "light", "recovered", "total"),
                              selected = "total",
                              multiple = T),
                  checkboxInput(ns("log_scale_chart"), label = "Log scale", value = T)
                  ),
-             # box(title = "Model fit controls",
-             #     status = "primary",
-             #     p("tbd")
-             #     )
+             box(title = "Model fit controls",
+                 status = "primary",
+                 dateInput(ns("train_set_cutoff"), label = "Train set cutoff", 
+                           min = "2020-02-28",
+                           max = Sys.Date(),
+                           value = Sys.Date() - 3)
+                 )
              ),
     fluidRow(
       box(width = 12, status = "primary",
         plotOutput(ns("tracking_plot"), 
                    brush = brushOpts(id = ns("plot_brush_location"),
                                      direction = "x"),
-                   height = "400px"),
-      footer = "Special thanks goes to Ilan Shaviv which is processing and tidying the data from MOH Telegram reports.")
+                   height = "400px"))
     ),
     fluidRow(
       box(width = 12, status = "primary",
@@ -50,16 +69,41 @@ mod_israel_data_ui <- function(id){
 #' israel_data Server Function
 #'
 #' @noRd 
-mod_israel_data_server <- function(input, output, session, israel_data){
+mod_israel_data_server <- function(input, output, session, israel_data_raw){
   ns <- session$ns
   
+  use_source <- reactiveVal(1)
   last_updated <- reactiveVal({
-    max(israel_data$reporting_date)
+    israel_data_raw[[1]] %>%
+      pull(reporting_date) %>% 
+      max()})
+  
+  observe({
+    
+    req(last_updated())
+    req(use_source())
+    
+    if (input$data_source == "shaviv"){
+      cat("\nUsing Shaviv\n")
+      use_source(1)
+      last_updated({
+        israel_data_raw[[1]] %>%
+          pull(reporting_date) %>% 
+          max()})
+    } else if (input$data_source == "dardikman_hashkes"){
+      cat("\nUsing Dardikman and Hashkes\n")
+      use_source(2)
+      last_updated({
+        israel_data_raw[[2]] %>%
+          pull(reporting_date) %>% 
+          max()})
+    }
   })
   
   israel_plot_data <- reactive({
+    req(use_source())
 
-    israel_data %>%
+    israel_data_raw[[use_source()]] %>%
       pivot_longer(-reporting_date, "series_type", "value") %>%
       filter(series_type %in% input$plot_selector)
   }) %>% 
@@ -68,8 +112,8 @@ mod_israel_data_server <- function(input, output, session, israel_data){
   output$tracking_plot <- renderPlot({
     
     my_color_scale <- c("dead" = "#d53e4f",
-                        "serious" = "#fc8d59",
-                        "medium" = "#fee08b",
+                        "severe" = "#fc8d59",
+                        "moderate" = "#fee08b",
                         "light" = "#e6f598",
                         "recovered" = "#99d594",
                         "total" = "#3288bd")
@@ -99,7 +143,7 @@ mod_israel_data_server <- function(input, output, session, israel_data){
     
     validate(need(input$plot_brush_location, "Drag range on plot to view data"))
     
-    israel_data %>% 
+    israel_data_raw[[use_source()]] %>% 
       filter(reporting_date >= input$plot_brush_location[1] &
                reporting_date <= input$plot_brush_location[2]) %>% 
       datatable(class = "compact", rownames = F, autoHideNavigation = T,
@@ -111,14 +155,19 @@ mod_israel_data_server <- function(input, output, session, israel_data){
   output$last_updated <- renderValueBox({
     reporting_day <- as.character(last_updated()) %>% str_sub(end = 10)
     reporting_time <- as.character(last_updated()) %>% str_sub(start = 12, end = 16)
+    if (reporting_time == "00:00:00" | reporting_time == ""){
+      reporting_time <- "Last updated"
+    } else {
+      reporting_time <- paste0("Last updated (", reporting_time, ")")
+    }
     valueBox(value = reporting_day,
-             subtitle = paste0("Last updated (", reporting_time, ")"),
+             subtitle = reporting_time,
              icon = icon("calendar"),
              color = "light-blue")
   })
   
   output$currently_confirmed <- renderValueBox(
-    israel_data %>% 
+    israel_data_raw[[use_source()]] %>% 
       slice(NROW(reporting_date)) %>% 
       pull(total) %>% 
       valueBox(
@@ -129,9 +178,9 @@ mod_israel_data_server <- function(input, output, session, israel_data){
   )
   
   output$currently_seriously_ill <- renderValueBox(
-    israel_data %>% 
+    israel_data_raw[[use_source()]] %>% 
       slice(NROW(reporting_date)) %>% 
-      pull(serious) %>% 
+      pull(severe) %>% 
       valueBox(
         subtitle = "Currently seriously Ill",
         icon = icon("syringe"),
@@ -139,7 +188,7 @@ mod_israel_data_server <- function(input, output, session, israel_data){
   )
   
   output$currently_deaths <- renderValueBox(
-    israel_data %>% 
+    israel_data_raw[[use_source()]] %>% 
       slice(NROW(reporting_date)) %>% 
       pull(dead) %>% 
       valueBox(

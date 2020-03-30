@@ -9,7 +9,7 @@ library(tidyverse)
 # include modules
 source("R/mod_israel_data.R")
 
-version_data <- "Version 0.0.1 last updated 2020-03-28."
+version_data <- "Version 0.0.2 last updated 2020-03-30."
 
 # read Israel data from the googlesheets
 # Deprecated - the date format is inconsistent.
@@ -27,12 +27,20 @@ version_data <- "Version 0.0.1 last updated 2020-03-28."
 #     slice(NROW(reporting_date))
 
 # Reading from Ilan Shaviv's data instead
-israel_data <- read_csv("http://old.phys.huji.ac.il/~shaviv/ilan/Israel_paitentBreakDown2.csv") %>% 
+shaviv_data <- read_csv("http://old.phys.huji.ac.il/~shaviv/ilan/Israel_paitentBreakDown2.csv") %>% 
     mutate_at(vars(dead:total), ~if_else(is.nan(.), 0, .)) %>% 
     filter(total != 0) %>% 
     mutate(reporting_date = as.POSIXct(possixTime, origin = "1970-01-01")) %>% 
     select(reporting_date, dead:total) %>% 
-    janitor::clean_names()
+    janitor::clean_names() %>% 
+    rename(moderate = medium,
+           severe = serious)
+
+# Reading from Dardikman Hashkes (https://covid19data.co.il/)
+dardikman_hashkes <- read_csv("https://raw.githubusercontent.com/idandrd/israel-covid19-data/master/IsraelCOVID19.csv",
+                              skip = 1,
+                              col_names = c("reporting_date", "total", "new_cases", "moderate", "severe", "dead")) %>% 
+    mutate(reporting_date = as.POSIXct(reporting_date, format = "%d/%m/%Y"))
 
 # Define UI for application that draws a histogram
 ui <- dashboardPage(
@@ -68,7 +76,9 @@ ui <- dashboardPage(
 server <- function(input, output, session) {
     
     # Tab for Israel
-    callModule(mod_israel_data_server, "israel_data_ui_1", israel_data = israel_data)
+    callModule(mod_israel_data_server, "israel_data_ui_1", 
+               israel_data_raw = list(shaviv_data = shaviv_data,
+                                      dardikman_hashkes = dardikman_hashkes))
     
 }
 
