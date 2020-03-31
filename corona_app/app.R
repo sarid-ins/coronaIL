@@ -8,6 +8,7 @@ library(tidyverse)
 
 # include modules
 source("R/mod_israel_data.R")
+source("R/exponent_fit.R")
 
 version_data <- "Version 0.0.2 last updated 2020-03-30."
 

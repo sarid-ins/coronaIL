@@ -43,10 +43,11 @@ mod_israel_data_ui <- function(id){
                  ),
              box(title = "Model fit controls",
                  status = "primary",
-                 dateInput(ns("train_set_cutoff"), label = "Train set cutoff", 
-                           min = "2020-02-28",
-                           max = Sys.Date(),
-                           value = Sys.Date() - 3)
+                 dateRangeInput(ns("train_set_cutoff"), label = "Train set cutoff", 
+                                min = "2020-02-28",
+                                max = Sys.Date(),
+                                start = "2020-03-01", 
+                                end = Sys.Date() - 3)
                  )
              ),
     fluidRow(
