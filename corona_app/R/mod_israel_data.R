@@ -14,7 +14,7 @@ mod_israel_data_ui <- function(id){
       box(radioButtons(ns("data_source"), label = "Choose data source",
                        choices = c("Shaviv (updates two times per day)" = "shaviv", 
                                    "Dardikman-Hashkes (updates once a day)" = "dardikman_hashkes"),
-                       selected = "shaviv",
+                       selected = "dardikman_hashkes",
                        inline = TRUE),
           width = 12,
           title = "Data source... to replace data source click on the (+) to the far right --->",
