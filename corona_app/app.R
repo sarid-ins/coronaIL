@@ -49,7 +49,7 @@ ui <- dashboardPage(
     sidebar = dashboardSidebar(
         sidebarMenu(
             menuItem("Israel", tabName = "israel_tab", icon = icon("map-marked")),
-            menuItem("Global", tabName = "global_tab", icon = icon("globe")),
+            # menuItem("Global", tabName = "global_tab", icon = icon("globe")),
             menuItem("About", tabName = "about", icon = icon("info"))
             )
         ),
@@ -58,7 +58,7 @@ ui <- dashboardPage(
         tabItems(
             tabItem("israel_tab",
                     mod_israel_data_ui("israel_data_ui_1")),
-            tabItem("global_tab"),
+            # tabItem("global_tab"),
             tabItem("about",
                     box(HTML("<div>The app was created by <a href='https://www.sarid-ins.co.il'>Sarid Research Institute</a>.</div>
                              <div>Get in touch <a href='mailto:adi@sarid-ins.co.il'>here</a></div>"),
