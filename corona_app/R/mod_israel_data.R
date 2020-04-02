@@ -36,7 +36,7 @@ mod_israel_data_ui <- function(id){
                  status = "primary",
                  selectInput(inputId = ns("plot_selector"),
                              label = "Show on plot",
-                             choices = c("dead", "severe", "moderate", "light", "recovered", "total"),
+                             choices = c("dead", "severe", "moderate", "mild", "recovered", "total"),
                              selected = "total",
                              multiple = F),
                  checkboxInput(ns("log_scale_chart"), label = "Log scale", value = T)
@@ -142,13 +142,13 @@ mod_israel_data_server <- function(input, output, session, israel_data_raw){
     my_color_scale <- c("dead" = "#d53e4f",
                         "severe" = "#fc8d59",
                         "moderate" = "#fee08b",
-                        "light" = "#e6f598",
+                        "mild" = "#e6f598",
                         "recovered" = "#99d594",
                         "total" = "#3288bd",
                         "fit: dead" = "#d53e4f",
                         "fit: severe" = "#fc8d59",
                         "fit: moderate" = "#fee08b",
-                        "fit: light" = "#e6f598",
+                        "fit: mild" = "#e6f598",
                         "fit: recovered" = "#99d594",
                         "fit: total" = "#3288bd")
     

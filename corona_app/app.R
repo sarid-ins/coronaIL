@@ -17,7 +17,7 @@ version_data <- "Version 0.0.2 last updated 2020-03-30."
 # googlesheets4::sheets_deauth()
 # israel_data <- googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1U4Ew2a4eb0xHXLJBrATM41QfUSHJHrRaY6wCANImb_s",
 #                                          col_names = c("reporting_date", "death", "serious", 
-#                                                        "medium", "light", "recovered", "total",
+#                                                        "medium", "mild", "recovered", "total",
 #                                                        "comments"),
 #                                          col_types = "cddddddc",
 #                                          skip = 1) %>% 
@@ -35,7 +35,8 @@ shaviv_data <- read_csv("http://old.phys.huji.ac.il/~shaviv/ilan/Israel_paitentB
     select(reporting_date, dead:total) %>% 
     janitor::clean_names() %>% 
     rename(moderate = medium,
-           severe = serious)
+           severe = serious,
+           mild = light)
 
 # Reading from Dardikman Hashkes (https://covid19data.co.il/)
 dardikman_hashkes <- read_csv("https://raw.githubusercontent.com/idandrd/israel-covid19-data/master/IsraelCOVID19.csv",
