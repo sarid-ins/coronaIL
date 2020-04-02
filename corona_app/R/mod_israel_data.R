@@ -138,6 +138,7 @@ mod_israel_data_server <- function(input, output, session, israel_data_raw){
   output$tracking_plot <- renderPlot({
     
     req(use_source())
+    validate(need(NROW(israel_plot_data()) > 0, "Not available in current source, try changing data source."))
     
     my_color_scale <- c("dead" = "#d53e4f",
                         "severe" = "#fc8d59",
