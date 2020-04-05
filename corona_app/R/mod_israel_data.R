@@ -200,7 +200,7 @@ mod_israel_data_server <- function(input, output, session, israel_data_raw){
       filter(series_type %in% "total") %>% 
       mutate(log_ratio = log(value)-log(lag(value))) %>% 
       ggplot(aes(x = reporting_date, y = log_ratio)) + 
-      geom_hline(yintercept = log(2)/c(2:7, 14, 21), col = "grey") + 
+      geom_hline(yintercept = log(2)/c(2, 3, 4, 7, 14, 21), col = "grey") + 
       geom_point(alpha = 0.2) + 
       geom_smooth(method = "loess", se = FALSE) +
       scale_y_continuous(
@@ -209,7 +209,7 @@ mod_israel_data_server <- function(input, output, session, israel_data_raw){
         labels = paste0(seq(0,60,by=10),"%"),
         minor_breaks=NULL,
         sec.axis = sec_axis(~ {log(2)/.},
-                            breaks = c(2:7,14,21),
+                            breaks = c(2, 3, 4, 7, 14, 21),
                             name = "Doubling time (days)")) +
       saridr::theme_sarid() +
       xlab("") + 
