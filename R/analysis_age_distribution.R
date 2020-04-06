@@ -1,0 +1,48 @@
+# Analyze how the age distribution changes over time
+
+library(tidyverse)
+
+# Source was pulled from all the commits in https://github.com/idandrd/israel-covid19-data (one by one).
+
+# Read all data -----------------------------------------------------------
+
+age_distribution <- tibble(filename = dir("data/age_distribution/", full.names = TRUE)) %>% 
+  mutate(data = map(filename, read_csv, col_types = cols())) %>% 
+  mutate(date = str_replace_all(filename, "data/age_distribution//|_age_distribution.csv", "")) %>% 
+  select(-filename) %>% 
+  mutate(date = fct_inorder(date)) %>% 
+  unnest(data) %>% 
+  janitor::clean_names() %>% 
+  mutate(age = recode_factor(age, 
+                             `70-79` = "70+",
+                             `80-89` = "70+",
+                             `80+` = "70+",
+                             `90+` = "70+")) %>% 
+  group_by(age, date) %>% 
+  summarize(count = sum(count, na.rm = T)) %>% 
+  ungroup() %>% 
+  mutate(age = factor(age,
+                      levels = c("0-9", 
+                                 "10-19", 
+                                 "20-29",
+                                 "30-39",
+                                 "40-49",
+                                 "50-59",
+                                 "60-69",
+                                 "70+",
+                                 "Unknown לא דווח")))
+
+
+
+# Finally, ready to do the plot -------------------------------------------
+
+age_distribution %>%
+  group_by(date) %>% 
+  mutate(prop = count/sum(count)) %>% 
+  ggplot(aes(x = date, y = prop, fill = age)) + 
+  geom_col() + 
+  saridr::theme_sarid() + 
+  geom_label(aes(label = paste0(round(prop*100), "%")),
+             position = position_fill()) +
+  scale_y_continuous(labels = scales::percent_format(1)) +
+  coord_flip()
