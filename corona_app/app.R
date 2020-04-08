@@ -42,7 +42,8 @@ shaviv_data <- read_csv("http://old.phys.huji.ac.il/~shaviv/ilan/Israel_paitentB
 dardikman_hashkes <- read_csv("https://raw.githubusercontent.com/idandrd/israel-covid19-data/master/IsraelCOVID19.csv",
                               skip = 1,
                               col_names = c("reporting_date", "total", "new_cases", "moderate", "severe", "dead")) %>% 
-    mutate(reporting_date = as.POSIXct(reporting_date, format = "%d/%m/%Y"))
+    mutate(reporting_date = as.POSIXct(reporting_date, format = "%d/%m/%Y")) %>% 
+    filter(!is.na(reporting_date))
 
 # Define UI for application that draws a histogram
 ui <- dashboardPage(
