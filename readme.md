@@ -5,12 +5,14 @@ The repository contains various data and analysis relating to the distribution o
 
 ## Repo description
 
-The `data` folder contains raw data, `export` contains results (e.g., tidy excel files exported for distribution and figures in png format), and `R` contains the analysis.
+The `data` folder contains raw data, `export` contains results (e.g., tidy excel files exported for distribution and figures in png format), `R` contains the analysis. The `corona_app` contains the code for a shiny app located [here](https://dash.sarid-ins.co.il/coronaIL/corona_app/), and `exit strategies` contains documentation and research by 3rd parties related to exit strategies.
 
 ```
-├── data 
-├── export
 ├── R
+├── corona_app
+├── data 
+├── exit strategies
+├── export
 ```
 
 For questions, get in touch adi@sarid-ins.co.il, in twitter @SaridResearch, or our [website](https://www.sarid-ins.co.il).
