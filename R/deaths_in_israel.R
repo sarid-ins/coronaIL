@@ -9,7 +9,7 @@ death_data <- read_csv("data/deaths/2020-04-11 - Corona deaths.csv",
                                      "gender",
                                      "institution",
                                      "city")) %>% 
-  mutate(age_groups = cut(age, c(0, 50, 60, 70, 80, 90, max(age, na.rm = T))))
+  mutate(age_groups = cut(age, c(min(age, na.rm = T) - 1, 50, 60, 70, 80, 90, max(age, na.rm = T))))
 
 age_distribution <- death_data %>% 
   saridr::prop(age_groups, leave_n = T) %>% 
