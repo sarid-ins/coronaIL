@@ -205,7 +205,8 @@ ggplot(symptoms_age_gender,
 
 # A unifying chart comparing all groups
 ggplot(symptoms_age_gender %>% 
-         mutate(symptom = str_wrap(symptom, width = 10)), 
+         mutate(symptom = str_wrap(symptom, width = 10)) %>% 
+         mutate(age_gender_group = paste0(age_gender_group, "\n(n=", total, ")")), 
        aes(x = symptom, fill = age_gender_group, y = symptom_present)) + 
   geom_col(position = "dodge") + 
   saridr::theme_sarid() + 
@@ -217,6 +218,6 @@ ggplot(symptoms_age_gender %>%
             position = position_dodge(1), show.legend = F) + 
   coord_flip() +
   scale_fill_brewer(palette = "Set2") + 
-  guides(fill = guide_legend("Gender, age"))
+  guides(fill = guide_legend("Gender, age", keyheight = 2.5))
 
   
