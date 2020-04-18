@@ -10,7 +10,7 @@ library(tidyverse)
 source("R/mod_israel_data.R")
 source("R/exponent_fit.R")
 
-version_data <- "Version 0.0.3 last updated 2020-04-02."
+version_data <- "Version 0.0.4 last updated 2020-04-19."
 
 # read Israel data from the googlesheets
 # Deprecated - the date format is inconsistent.
