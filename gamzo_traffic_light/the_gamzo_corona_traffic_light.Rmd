@@ -94,4 +94,22 @@ $$
 
 מן הסתם, הרמזור הוא פיתוח שהחל להימדד רק בשבוע האחרון, אבל זה לא אומר שאי אפשר לחשב את הערכים שלו על פני תקופה ארוכה יותר.
 
-נסתכל על מספר ערים לאורך החודשים אפריל-אוגוסט כדי להבין כיצד משתנה הדינמיקה של הרמזור לאורך זמן.
+נסתכל על מספר ערים לאורך החודשים יוני-אוגוסט כדי להבין כיצד משתנה הדינמיקה של הרמזור לאורך זמן. אני מגדיל ראש ומציג את הדירוג ברזולוציה של ימים, למרות שנראה לי שבפועל משרד הבריאות הולך לעדכן אותו פעם בשבוע.
+
+```{r example ranks, echo=FALSE}
+selected_towns <- read_csv("selected_towns_processed.csv", col_types = cols()) %>% 
+  filter(date >= "2020-06-01")
+
+selected_towns %>% 
+  ggplot(aes(y = score, x = date)) + 
+  facet_wrap(~town) + 
+  saridr::theme_sarid() + 
+  geom_hline(yintercept = 0, color = "green", size = 1) + 
+  geom_hline(yintercept = 5, color = "yellow2", size = 1.1) + 
+  geom_hline(yintercept = 6.5, color = "orange", size = 1) + 
+  geom_hline(yintercept = 7, color = "red", size = 1) +
+  geom_line(size = 1) + 
+  labs(caption = "Sarid Research Institute LTD. Data source: data.gov.il/covid-19")
+```
+
+מה שאנחנו רואים מפתיע, כי מכל הסיקור התקשורתי, אני הייתי בטוח שבני ברק הולכת להיות אדומה, בפועל היא רק צהובה בינתיים, ובמגמת עלייה. תל-אביב וראשון לציון שתיהן מתקרבות להיות צהובות, ומעניין לציין שבמהלך יולי היו במצב רע הרבה יותר. חיפה וירושלים מתנדנות סביב הדירוג הצהוב.
