@@ -50,11 +50,4 @@ town_for_formula <- town_data %>%
 
 # filter just a few towns ----
 
-selected_towns <- town_for_formula %>% 
-  filter(town %in% c("תל אביב-יפו",
-                     "בני ברק",
-                     "חיפה",
-                     "ראשון לציון",
-                     "ירושלים"))
-
-write_csv(selected_towns, "gamzo_traffic_light/selected_towns_processed.csv")
+write_csv(town_for_formula, "gamzo_traffic_light/selected_towns_processed.csv")
