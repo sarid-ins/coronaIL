@@ -1,0 +1,78 @@
+---
+title: "COVID19 Vaccines in Israel"
+author: "Adi Sarid"
+date: "2/5/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(glue)
+library(gt)
+library(gtsummary)
+```
+
+How is Israel doing in terms of population vaccinations?
+
+Where are vaccinations adopted and where they are not going so well?
+
+## Read the data 
+
+```{r read the vaccinations data, message=FALSE, warning=FALSE}
+vacci_raw <- read_csv("data/2021-02-03 - vaccinated_city_table_ver_0013.csv")
+glimpse(vacci_raw)
+```
+
+Observations about how the data is arranged:
+
+   * Wide format where the age group is noted in the header. 
+   * The values are character (instead of numeric) since one possible value is "<15" (for privacy reasons statistical cells less than 15 are not reported).
+   * Also, different headers for first dose and second dose.
+   * According to the [documentation](https://data.gov.il/dataset/covid-19/resource/c70cff54-4e4c-47dc-b47c-7500f366319b?inner_span=True) only towns with pop. size > 2000 are reported.
+
+Reshaping the file a bit into a long format, and getting rid of the characters. I will replace "<15" with 0.
+
+```{r arranging the file}
+
+cbs_data <- readxl::read_excel("data/bycode2018.xlsx") %>% 
+   select(city_symbol, population)
+
+vacci <- vacci_raw %>% 
+  pivot_longer(cols = contains("_dose_"),
+               names_to = "vaccine_type", 
+               values_to = "vaccinated") %>% 
+  mutate(vaccinated = if_else(vaccinated == "<15", "0.0", vaccinated)) %>% 
+  mutate(vaccinated = parse_number(vaccinated)) %>% 
+  mutate(dose = case_when(str_detect(vaccine_type, "first") ~ 1,
+                          str_detect(vaccine_type, "second") ~ 2,
+                          TRUE ~ -99)) %>% 
+   mutate(age_group = str_remove(vaccine_type, "first_dose_|second_dose_")) %>% 
+   left_join(cbs_data, by = c("CityCode" = "city_symbol"))
+
+vacci_agg <- vacci %>% 
+   filter(!is.na(population)) %>% 
+   group_by(CityName, dose, Date, population) %>% 
+   summarize(total_vaccinated = sum(vaccinated)) %>% 
+   mutate(dose = paste0("dose", dose)) %>% 
+   pivot_wider(names_from = dose, values_from = total_vaccinated) %>% 
+   mutate(dose1_prcnt = dose1/population,
+          dose2_prcnt = dose2/population)
+      
+vacci_agg %>% 
+   filter(CityName %in% c("בני ברק",
+                          "נתניה",
+                          "תל אביב - יפו",
+                          "חיפה",
+                          "ירושלים")) %>% 
+   ggplot(aes(x = Date, y = dose1_prcnt, color = CityName)) + 
+   geom_line(size = 1) + 
+   saridr::theme_sarid() + 
+   ylab("Population [%]") + 
+   ggtitle("\u202bחיסון מנה ראשונה של COVID19 בישראל - רשויות נבחרות") + 
+   scale_y_continuous(labels = scales::percent_format(1)) + 
+   guides(color = guide_legend("עיר")) +
+   labs(caption = "\u202bמקור הנתונים: מאגר COVID-19 של משרד הבריאות מתחסנים על פי יישוב\n\u202bויז'ואליזציה מכון שריד: https://www.sarid-ins.co.il") + 
+   theme(plot.title = element_text(hjust = 1))
+
+```
