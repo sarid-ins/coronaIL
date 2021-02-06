@@ -36,6 +36,7 @@ cbs_data <- read_csv("data/2021-02-06 - population_by_town.csv",
   mutate(age_group = str_replace(age_group, "_", "-")) %>% 
   mutate(age_group = str_replace(age_group, "-plus", "+"))
 
+# Final table -------------------------------------------------------------
 
 vacci <- vacci_raw %>% 
   rename(city_name = CityName,
@@ -62,5 +63,32 @@ vacci <- vacci_raw %>%
            dose, age_group) %>% 
   summarize(vaccinated = sum(vaccinated)) %>% 
   left_join(cbs_data)
-  
+
 write_csv(vacci, "data/vacci.csv")
+
+# Example chart ----
+
+chart_prep <- vacci %>% 
+  filter(!is.na(population)) %>% 
+  group_by(city_name, dose, Date, population, age_group) %>% 
+  summarize(total_vaccinated = sum(vaccinated)) %>% 
+  filter(age_group == "60+",
+         city_name %in% c("תל אביב - יפו",
+                          "בני ברק",
+                          "נתניה",
+                          "ירושלים",
+                          "חיפה"))
+
+comparison_chart <- chart_prep %>%
+  filter(dose == 1) %>% 
+  mutate(prop = total_vaccinated/population) %>% 
+  ggplot(aes(x = Date, y = prop, color = city_name)) + 
+  geom_line(size = 1) + 
+  saridr::theme_sarid() + 
+  ylab("Population [%]") + 
+  ggtitle("\u202bחיסון מנה ראשונה של COVID19 בישראל\nרשויות נבחרות, גילאי 60 ומעלה") +
+  scale_y_continuous(labels = scales::percent_format(1)) + 
+  guides(color = guide_legend("עיר")) +
+  labs(caption = "\u202bמקור הנתונים: מאגר COVID-19 של משרד הבריאות מתחסנים על פי יישוב\n\u202bויז'ואליזציה מכון שריד: https://www.sarid-ins.co.il") + 
+  theme(plot.title = element_text(hjust = 1),
+        plot.subtitle = element_text(hjust = 1))
