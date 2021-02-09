@@ -11,6 +11,7 @@ library(openxlsx)
 
 vacci <- read_csv("data/vacci.csv")
 
+last_updated <- "2021-02-07 version 14"
 
 # List options ------------------------------------------------------------
 
@@ -87,7 +88,7 @@ ui <- fluidPage(theme = shinytheme("cerulean"),
                               plotOutput("out_chart"),
                               h4("Sources:"),
                               HTML("<p>Town population by age from <a href='https://data.gov.il/dataset/residents_in_israel_by_communities_and_age_groups/resource/64edd0ee-3d5d-43ce-8562-c336c24dbc1f'>MOI</a></p>"),
-                              HTML("<p>Vaccination rates from <a href='https://data.gov.il/dataset/covid-19/resource/12c9045c-1bf4-478a-a9e1-1e876cc2e182'>MOH</a></p>"),
+                              HTML(glue::glue("<p>Vaccination rates from <a href='https://data.gov.il/dataset/covid-19/resource/12c9045c-1bf4-478a-a9e1-1e876cc2e182'>MOH</a> Last update {last_updated}</p>")),
                               HTML("<p>App by <a href='https://www.sarid-ins.co.il'>Sarid Research Institute</a></p>"),
                               img(src = "logo_eng_2.png", width = "150px")
                     )

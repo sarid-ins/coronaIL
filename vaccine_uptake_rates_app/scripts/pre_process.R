@@ -2,7 +2,7 @@ library(tidyverse)
 
 # Prep data for use (will be cached) --------------------------------------
 # source: https://data.gov.il/dataset/covid-19/resource/12c9045c-1bf4-478a-a9e1-1e876cc2e182
-vacci_raw <- read_csv("data/2021-02-03 - vaccinated_city_table_ver_0013.csv")
+vacci_raw <- read_csv("data/vaccinated_city_table.csv")
 
 # source: https://data.gov.il/dataset/residents_in_israel_by_communities_and_age_groups/resource/64edd0ee-3d5d-43ce-8562-c336c24dbc1f
 cbs_data <- read_csv("data/2021-02-06 - population_by_town.csv",
