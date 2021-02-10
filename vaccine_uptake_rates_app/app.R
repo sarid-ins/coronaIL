@@ -11,7 +11,7 @@ library(openxlsx)
 
 vacci <- read_csv("data/vacci.csv")
 
-last_updated <- "2021-02-07 version 14"
+last_updated <- "2021-02-10 version 15"
 
 # List options ------------------------------------------------------------
 
